@@ -82,9 +82,9 @@ for i_episode in range(n_rounds):
             # img = Image.fromarray(env.render(mode="return"), 'RGB')
             # img.save(os.path.join('images', 'observation_{}_{}.png'.format(i_episode, t)))
             img = env.render(mode="return")
-            fig = plt.imshow(img, vmin=0, vmax=255, interpolation='none')
-            fig.axes.get_xaxis().set_visible(False)
-            fig.axes.get_yaxis().set_visible(False)
+            fig2 = plt.imshow(img, vmin=0, vmax=255, interpolation='none')
+            fig2.axes.get_xaxis().set_visible(False)
+            fig2.axes.get_yaxis().set_visible(False)
             plt.savefig(os.path.join('images', 'observation_{}_{}.png'.format(i_episode, t)))
 
 
