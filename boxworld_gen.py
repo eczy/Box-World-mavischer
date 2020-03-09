@@ -30,11 +30,11 @@ def sampling_pairs(num_pair, n=12):
     return keys, locks, first_key, agent_pos
 
 
-colors = {0: [0, 0, 0], 1: [230, 190, 255], 2: [170, 255, 195], 3: [255, 250, 200],
-                       4: [255, 216, 177], 5: [250, 190, 190], 6: [240, 50, 230], 7: [145, 30, 180], 8: [67, 99, 216],
-                       9: [66, 212, 244], 10: [60, 180, 75], 11: [191, 239, 69], 12: [255, 255, 25], 13: [245, 130, 49],
-                       14: [230, 25, 75], 15: [128, 0, 0], 16: [154, 99, 36], 17: [128, 128, 0], 18: [70, 153, 144],
-                       19: [0, 0, 117]}
+colors = {0: [0, 0, 117], #no black because it's used for outline
+          1: [230, 190, 255], 2: [170, 255, 195], 3: [255, 250, 200],
+          4: [255, 216, 177], 5: [250, 190, 190], 6: [240, 50, 230], 7: [145, 30, 180], 8: [67, 99, 216],
+          9: [66, 212, 244], 10: [60, 180, 75], 11: [191, 239, 69], 12: [255, 255, 25], 13: [245, 130, 49],
+          14: [230, 25, 75], 15: [128, 0, 0], 16: [154, 99, 36], 17: [128, 128, 0], 18: [70, 153, 144]}
 
 num_colors = len(colors)
 agent_color = [128, 128, 128]
@@ -65,11 +65,6 @@ def plot_solution_graph(goal_colors, distractor_colors, distractor_roots, colors
 def world_gen(n=12, goal_length=5, num_distractor=2, distractor_length=2, seed=None):
     """generate boxworld
     """
-    n = 12
-    goal_length = 5
-    num_distractor = 2
-    distractor_length = 2
-    seed = None
     if seed is None:
         random.seed(seed)
 
@@ -121,6 +116,9 @@ def world_gen(n=12, goal_length=5, num_distractor=2, distractor_length=2, seed=N
     world[agent_pos[0], agent_pos[1]] = np.array(agent_color)
     # convert goal colors to rgb so they have the same format as returned world
     goal_colors_rgb = [colors[col] for col in goal_colors]
+    #add outline to world by padding
+    world = np.pad(world, [(1,1),(1,1),(0,0)])
+    agent_pos += [1,1] #account for padding
     return world, agent_pos, dead_ends, goal_colors_rgb
 
 def update_color(world, previous_agent_loc, new_agent_loc):

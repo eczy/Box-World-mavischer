@@ -23,7 +23,7 @@ class Boxworld(gym.Env):
     def __init__(self, n, goal_length, num_distractor, distractor_length, max_steps=5000, world=None):
         """
            Args:
-             n: specify the size of the field (n x n)
+             n: size of the field (n x n) without the outline
              goal_length
              num_distractor
              distractor_length
@@ -74,12 +74,14 @@ class Boxworld(gym.Env):
         done = self.num_env_steps == self.max_steps
 
         # Move player if the field in the moving direction is either
-
-        if np.any(new_position < 0) or np.any(new_position >= self.n):
+        print(self.player_position)
+        print(new_position)
+        print(self.n)
+        if np.any(new_position < 1) or np.any(new_position >= self.n+1): #at boundary
             possible_move = False
 
-        elif np.array_equal(new_position, [0, 0]):
-            possible_move = False
+        # elif np.array_equal(new_position, [0, 0]):
+        #     possible_move = False
 
         elif is_empty(self.world[new_position[0], new_position[1]]):
             # No key, no lock
@@ -141,7 +143,7 @@ class Boxworld(gym.Env):
                                                          distractor_length=self.distractor_length,
                                                         seed=self.np_random_seed)
         else:
-            self.world, self.player_position = world
+            self.world, self.player_position, self.dead_ends, self.correct_keys = world
 
         self.num_env_steps = 0
 
@@ -184,9 +186,9 @@ CHANGE_COORDINATES = {
 }
 
 
-if __name__ == "__main__":
-    # execute only if run as a script
-    env = Boxworld(12, 4, 2, 2)
-    # env.seed(1)
-    env.reset()
-    env.render()
+# if __name__ == "__main__":
+#     # execute only if run as a script
+#     env = Boxworld(12, 4, 2, 2)
+#     # env.seed(1)
+#     env.reset()
+#     env.render()
