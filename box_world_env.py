@@ -8,18 +8,28 @@ import matplotlib.pyplot as plt
 
 from boxworld_gen import *
 
-class boxworld(gym.Env):
+class Boxworld(gym.Env):
     """Boxworld representation
     Args:
-      n: specify the size of the field (n x n)
-      goal_length
-      num_distractor
-      distractor_length
+      n: size of the board (n x n) excluding the edge
+      goal_length: length of correct solution
+      num_distractor: number of distractor branches
+      distractor_length: length of each distractor path (currently all distractor paths are same length
+      max_steps: maximum steps the environment allows before terminating
       world: an existing world data. If this is given, use this data.
              If None, generate a new data by calling world_gen() function
     """
 
-    def __init__(self, n, goal_length, num_distractor, distractor_length, max_steps=300, world=None):
+    def __init__(self, n, goal_length, num_distractor, distractor_length, max_steps=5000, world=None):
+        """
+           Args:
+             n: specify the size of the field (n x n)
+             goal_length
+             num_distractor
+             distractor_length
+             world: an existing world data. If this is given, use this data.
+                    If None, generate a new data by calling world_gen() function
+           """
         self.goal_length = goal_length
         self.num_distractor = num_distractor
         self.distractor_length = distractor_length
@@ -27,8 +37,10 @@ class boxworld(gym.Env):
         self.num_pairs = goal_length - 1 + distractor_length * num_distractor
 
         # Penalties and Rewards
-        self.step_cost = 0.1
+        self.step_cost = 0.0# 0.1 #todo: remove or not?
         self.reward_gem = 10
+        self.reward_dead = -1
+        self.reward_correct_key = 1
         self.reward_key = 0
 
         # Other Settings
@@ -80,10 +92,22 @@ class boxworld(gym.Env):
                 possible_move = True
                 self.owned_key = self.world[new_position[0], new_position[1]].copy()
                 self.world[0, 0] = self.owned_key
-                if np.array_equal(self.world[new_position[0], new_position[1]], goal_color):
+                # print(self.owned_key)
+                # print(goal_color)
+                # print(self.goal_colors)
+                # print(self.owned_key in self.dead_ends)
+                # print(self.owned_key in self.goal_colors)
+                if np.array_equal(self.owned_key, np.array(goal_color)):
                     # Goal reached
                     reward += self.reward_gem
                     done = True
+                elif np.any([np.array_equal(self.owned_key,dead_end) for dead_end in self.dead_ends]): #reached a dead
+                    # end,
+                # terminate episode
+                    reward += self.reward_dead
+                    done = True
+                elif np.any([np.array_equal(self.owned_key, key) for key in self.correct_keys]):
+                    reward += self.reward_correct_key
                 else:
                     reward += self.reward_key
             else:
@@ -111,7 +135,8 @@ class boxworld(gym.Env):
 
     def reset(self, world=None):
         if world is None:
-           self.world, self.player_position = world_gen(n=self.n, goal_length=self.goal_length,
+           self.world, self.player_position, self.dead_ends, self.correct_keys = world_gen(n=self.n,
+                                                                                  goal_length=self.goal_length,
                                                          num_distractor=self.num_distractor,
                                                          distractor_length=self.distractor_length,
                                                         seed=self.np_random_seed)
@@ -122,19 +147,24 @@ class boxworld(gym.Env):
 
         return self.world
 
-    def render(self, mode="human"):
+    def render(self, mode="human", figAx=None):
         img = self.world.astype(np.uint8)
         if mode == "return":
             return img
 
         else:
+            if (figAx) == None:
+                fig,ax = plt.subplots()
+            else:
+                fig,ax = figAx
             # from gym.envs.classic_control import rendering
             # if self.viewer is None:
             #     self.viewer = rendering.SimpleImageViewer()
             # self.viewer.imshow(img)
             # return self.viewer.isopen
-            plt.imshow(img, vmin=0, vmax=255, interpolation='none')
-            plt.show()
+            ax.imshow(img, vmin=0, vmax=255, interpolation='none')
+            fig.show()
+            return (fig,ax)
 
     def get_action_lookup(self):
         return ACTION_LOOKUP
@@ -156,7 +186,7 @@ CHANGE_COORDINATES = {
 
 if __name__ == "__main__":
     # execute only if run as a script
-    env = boxworld(12, 3, 2, 1)
+    env = Boxworld(12, 4, 2, 2)
     # env.seed(1)
     env.reset()
     env.render()

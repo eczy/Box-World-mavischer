@@ -7,6 +7,9 @@ import numpy as np
 import argparse
 import os
 
+from pylab import *
+ion()
+
 parser = argparse.ArgumentParser(description='Run environment with random selected actions.')
 parser.add_argument('--rounds', '-r', metavar='rounds', type=int,
                     help='number of rounds to play (default: 1)', default=1)
@@ -32,7 +35,7 @@ if save_images and not os.path.exists('images'):
         print('Error: Creating images target directory. ')
 
 ts = time.time()
-env = box_world_env.boxworld(12, 4, 3, 1)
+env = box_world_env.Boxworld(8, 3, 2, 1)
 ACTION_LOOKUP = env.unwrapped.get_action_lookup()
 print("Created environment: {}".format(env_name))
 
@@ -57,10 +60,8 @@ def print_available_actions():
 for i_episode in range(n_rounds):
     print('Starting new game!')
     observation = env.reset()
-
+    fig, ax = env.render()
     for t in range(n_steps):
-        env.render()
-
         action = input('Select action: ')
         try:
             action = int(action)
@@ -75,6 +76,8 @@ for i_episode in range(n_rounds):
         observation, reward, done, info = env.step(action)
         print(ACTION_LOOKUP[action], reward, done, info)
         print(len(observation), len(observation[0]), len(observation[0][0]))
+        fig,ax = env.render(figAx=(fig,ax))
+
         if save_images:
             # img = Image.fromarray(env.render(mode="return"), 'RGB')
             # img.save(os.path.join('images', 'observation_{}_{}.png'.format(i_episode, t)))
@@ -87,7 +90,7 @@ for i_episode in range(n_rounds):
 
         if done:
             print("Episode finished after {} timesteps".format(t+1))
-            env.render()
+            # env.render()
             break
 
     if generate_gifs:
