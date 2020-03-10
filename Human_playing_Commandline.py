@@ -1,9 +1,6 @@
-# import gym
-import box_world_env
-import time
-# from PIL import Image
+import gym
+#import time
 import matplotlib.pyplot as plt
-import numpy as np
 import argparse
 import os
 
@@ -35,7 +32,7 @@ if save_images and not os.path.exists('images'):
         print('Error: Creating images target directory. ')
 
 ts = time.time()
-env = box_world_env.Boxworld(8, 3, 2, 1)
+env = gym.make('gym_boxworld:boxworld-v0', n = 12, goal_length=3, num_distractor=2, distractor_length=2)
 ACTION_LOOKUP = env.unwrapped.get_action_lookup()
 print("Created environment: {}".format(env_name))
 
@@ -75,7 +72,6 @@ for i_episode in range(n_rounds):
 
         observation, reward, done, info = env.step(action)
         print(ACTION_LOOKUP[action], reward, done, info)
-        print(len(observation), len(observation[0]), len(observation[0][0]))
         fig,ax = env.render(figAx=(fig,ax))
 
         if save_images:
@@ -94,7 +90,7 @@ for i_episode in range(n_rounds):
             break
 
     if generate_gifs:
-        print('')
+        print("Generating gifs")
         import imageio
 
         with imageio.get_writer(os.path.join('images', 'round_{}.gif'.format(i_episode)), mode='I', fps=1) as writer:

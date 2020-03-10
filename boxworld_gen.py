@@ -62,7 +62,7 @@ def plot_solution_graph(goal_colors, distractor_colors, distractor_roots, colors
     plt.xticks(list(range(len(goal_colors)+1)))
     plt.xlabel("key #")
 
-def world_gen(n=12, goal_length=5, num_distractor=2, distractor_length=2, seed=None):
+def world_gen(n=12, goal_length=5, num_distractor=2, distractor_length=2, seed=None, plot_solution=False):
     """generate boxworld
     """
     if seed is None:
@@ -71,12 +71,13 @@ def world_gen(n=12, goal_length=5, num_distractor=2, distractor_length=2, seed=N
     world_dic = {}
     world = np.ones((n, n, 3), dtype=np.int8) * 220
     goal_colors = random.sample(range(num_colors), goal_length - 1)
-    distractor_possible_colors = [color for color in range(20) if color not in goal_colors]
+    distractor_possible_colors = [color for color in range(len(colors)) if color not in goal_colors]
     distractor_colors = [random.sample(distractor_possible_colors, distractor_length) for k in range(num_distractor)]
     distractor_roots = random.choices(range(goal_length - 1), k=num_distractor)
     #this line mainly prevents arbitrary distractor path length
     keys, locks, first_key, agent_pos = sampling_pairs(goal_length - 1 + distractor_length * num_distractor, n)
-    plot_solution_graph(goal_colors, distractor_colors, distractor_roots, colors)
+    if plot_solution:
+        plot_solution_graph(goal_colors, distractor_colors, distractor_roots, colors)
 
     # first, create the goal path
     for i in range(1, goal_length):

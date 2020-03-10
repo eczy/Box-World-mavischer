@@ -37,7 +37,7 @@ class Boxworld(gym.Env):
         self.num_pairs = goal_length - 1 + distractor_length * num_distractor
 
         # Penalties and Rewards
-        self.step_cost = 0.0# 0.1 #todo: remove or not?
+        self.step_cost = 0.0# 0.1 #todo: check if helpful? remove or not?
         self.reward_gem = 10
         self.reward_dead = -1
         self.reward_correct_key = 1
@@ -50,7 +50,7 @@ class Boxworld(gym.Env):
         self.observation_space = Box(low=0, high=255, shape=(n, n, 3), dtype=np.uint8)
 
         # Game initialization
-        self.owned_key = [220, 220, 220]
+        self.owned_key = [0, 0, 0]
 
         self.np_random_seed = None
         self.reset(world)
@@ -87,7 +87,8 @@ class Boxworld(gym.Env):
             # No key, no lock
             possible_move = True
 
-        elif new_position[1] == 0 or is_empty(self.world[new_position[0], new_position[1]-1]):
+        elif new_position[1] == 1 or is_empty(self.world[new_position[0], new_position[1]-1]): #first condition is to
+            # catch keys at left boundary
             # It is a key
             if is_empty(self.world[new_position[0], new_position[1]+1]):
                 # Key is not locked
