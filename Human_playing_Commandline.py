@@ -1,5 +1,5 @@
 import gym
-#import time
+import time
 import matplotlib.pyplot as plt
 import argparse
 import os
