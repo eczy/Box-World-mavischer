@@ -78,7 +78,7 @@ class BoxworldEnv(gym.Env):
         self.viewer = None
         self.max_steps = max_steps
         self.action_space = Discrete(len(ACTION_LOOKUP))
-        self.observation_space = Box(low=0, high=255, shape=(n, n, 3), dtype=np.uint8)
+        self.observation_space = Box(low=0, high=255, shape=(n+2, n+2, 3), dtype=np.uint8)
 
         # Game initialization
         self.owned_key = [0, 0, 0]
