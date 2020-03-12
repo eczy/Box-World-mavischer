@@ -50,7 +50,8 @@ class BoxworldEnv(gym.Env):
     """
     metadata = {'render.modes': ['human','return']}
 
-    def __init__(self, n=12, goal_length=5, num_distractor=2, distractor_length=2, max_steps=5000, world=None):
+    def __init__(self, n=12, goal_length=5, num_distractor=2, distractor_length=2, max_steps=5000, world=None,
+                 verbose=False):
         """
         Args:
             n: size of the board (n x n) excluding the outline (width 1 around board, so in total (n+2 x n+2)
@@ -60,6 +61,7 @@ class BoxworldEnv(gym.Env):
             max_steps: maximum steps the environment allows before terminating
             world: an existing world data. If this is given, use this data.
                 If None, generate a new data by calling world_gen() function
+            verbose: print messages when creating and interacting with the environment
         """
         self.goal_length = goal_length
         self.num_distractor = num_distractor
@@ -76,6 +78,7 @@ class BoxworldEnv(gym.Env):
 
         # Other Settings
         self.viewer = None
+        self.verbose = verbose
         self.max_steps = max_steps
         self.action_space = Discrete(len(ACTION_LOOKUP))
         self.observation_space = Box(low=0, high=255, shape=(n+2, n+2, 3), dtype=np.uint8)
@@ -175,14 +178,16 @@ class BoxworldEnv(gym.Env):
                 color = GOAL_COLOR  # final key is white
             else:
                 color = COLORS[goal_colors[i]]
-            print("place a key with color {} on position {}".format(color, keys[i - 1]))
-            print("place a lock with color {} on {})".format(COLORS[goal_colors[i - 1]], locks[i - 1]))
+            if self.verbose:
+                print("place a key with color {} on position {}".format(color, keys[i - 1]))
+                print("place a lock with color {} on {})".format(COLORS[goal_colors[i - 1]], locks[i - 1]))
             world[keys[i - 1][0], keys[i - 1][1]] = np.array(color)
             world[locks[i - 1][0], locks[i - 1][1]] = np.array(COLORS[goal_colors[i - 1]])
 
         # keys[0] is an orphand key so skip it
         world[first_key[0], first_key[1]] = np.array(COLORS[goal_colors[0]])
-        print("place the first key with color {} on position {}".format(goal_colors[0], first_key))
+        if self.verbose:
+            print("place the first key with color {} on position {}".format(goal_colors[0], first_key))
 
         # a dead end is the end of a distractor branch, saved as color so it's consistent with world representation
         dead_ends = []
@@ -273,8 +278,9 @@ class BoxworldEnv(gym.Env):
                 possible_move = True
             else:
                 possible_move = False
-                print("lock color is {}, but owned key is {}".format(
-                    self.world[new_position[0], new_position[1]], self.owned_key))
+                if self.verbose:
+                    print("lock color is {}, but owned key is {}".format(
+                        self.world[new_position[0], new_position[1]], self.owned_key))
 
         if possible_move:
             self.player_position = new_position
