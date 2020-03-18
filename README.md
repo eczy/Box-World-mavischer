@@ -20,7 +20,8 @@ It is a perceptually simple but combinatorially complex environment that require
 
 To collect the content of a box the agent must first collect the key that opens the box (the one that matches the lock’s color) and walk over the lock, which makes the lock disappear. At this point, the content of the box becomes accessible and can be picked up by the agent. Most boxes contain keys that, if made accessible, can be used to open other boxes. One of the boxes contains a gem, represented by a single white pixel. The goal of the agent is to collect the gem by unlocking the box that contains it and picking it up by walking over it. The key that an agent has in possession is depicted in the input observation as a pixel in the top-left corner. In each level, there is a unique sequence of boxes that need to be opened to reach the gem. Opening one wrong box (a distractor box) leads to a dead-end where the gem cannot be reached and the level becomes unsolvable.
 
-Three user-controlled parameters contribute to the difficulty of the level:
+Four user-controlled parameters contribute to the difficulty of the level:
+ - The size of the board, thus size of state space
  - The number of boxes in the path to the goal (solution length) 
  - The number of distractor branches 
  - The length of the distractor branches

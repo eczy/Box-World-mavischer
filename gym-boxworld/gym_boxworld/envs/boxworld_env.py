@@ -50,7 +50,7 @@ class BoxworldEnv(gym.Env):
     """
     metadata = {'render.modes': ['human','return']}
 
-    def __init__(self, n=12, goal_length=5, num_distractor=2, distractor_length=2, max_steps=5000, world=None,
+    def __init__(self, n=12, goal_length=5, num_distractor=2, distractor_length=2, max_steps=1000, world=None,
                  verbose=False):
         """
         Args:
