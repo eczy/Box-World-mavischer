@@ -70,11 +70,11 @@ class BoxworldEnv(gym.Env):
         self.num_pairs = goal_length - 1 + distractor_length * num_distractor
 
         # Penalties and Rewards
-        self.step_cost = 0.0# 0.1 #todo: check if helpful? remove or not?
-        self.reward_gem = 10
-        self.reward_dead = -1
+        self.step_cost = -0.1 #todo: check if helpful? remove or not?
+        self.reward_gem = 20
+        self.reward_dead = -5
         self.reward_correct_key = 1
-        self.reward_key = 0
+        self.reward_wrong_key = -1
 
         # Other Settings
         self.viewer = None
@@ -248,8 +248,7 @@ class BoxworldEnv(gym.Env):
             possible_move = True
 
         elif new_position[1] == 1 or self.is_empty(self.world[new_position[0], new_position[1]-1]): #first condition
-            # is to
-            # catch keys at left boundary
+            # is to catch keys at left boundary
             # It is a key
             if self.is_empty(self.world[new_position[0], new_position[1]+1]):
                 # Key is not locked
@@ -261,14 +260,13 @@ class BoxworldEnv(gym.Env):
                     reward += self.reward_gem
                     done = True
                 elif np.any([np.array_equal(self.owned_key,dead_end) for dead_end in self.dead_ends]): #reached a dead
-                    # end,
-                # terminate episode
+                    # end, terminate episode
                     reward += self.reward_dead
                     done = True
                 elif np.any([np.array_equal(self.owned_key, key) for key in self.correct_keys]):
                     reward += self.reward_correct_key
                 else:
-                    reward += self.reward_key
+                    reward += self.reward_wrong_key
             else:
                 possible_move = False
         else:
