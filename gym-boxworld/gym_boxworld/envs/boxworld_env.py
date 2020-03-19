@@ -70,7 +70,7 @@ class BoxworldEnv(gym.Env):
         self.num_pairs = goal_length - 1 + distractor_length * num_distractor
 
         # Penalties and Rewards
-        self.step_cost = -0.1 #todo: check if helpful? remove or not?
+        self.step_cost = -0.05 #todo: check if helpful? remove or not?
         self.reward_gem = 20
         self.reward_dead = -5
         self.reward_correct_key = 1
@@ -233,7 +233,7 @@ class BoxworldEnv(gym.Env):
 
         self.num_env_steps += 1
 
-        reward = -self.step_cost
+        reward = self.step_cost #assumed to be negative
         done = self.num_env_steps == self.max_steps
 
         # Move player if the field in the moving direction is either
