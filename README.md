@@ -39,6 +39,16 @@ The mapping of the action numbers to the actual actions looks as follows
  | Move Left    | 2     |   
  | Move Right   | 3     |
  
+ ## Reward Structure
+Under the current settings, the environment provides the following rewards:
+* -0.05 for every step to facilitate learning
+* picking up (not unlocking) a correct key: 1
+* picking up (not unlocking) a wrong key: -1
+* reaching a dead end: -5
+* reching the goal (gem): 20
+
+The values were picked more or less arbitrarily.
+
  ## Installing the Environment
  This implementation makes use of gym registration.
  Install the environment by running inside this directory:
@@ -46,6 +56,8 @@ The mapping of the action numbers to the actual actions looks as follows
 ```bash
 pip install -e gym-boxworld
 ```
+**Remember that after changing the code you need to re-register the environment before the changes become effective.**
+
 An instance can be then created by:
 ```python
 import gym
