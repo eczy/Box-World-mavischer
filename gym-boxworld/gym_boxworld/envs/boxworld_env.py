@@ -23,11 +23,11 @@ CHANGE_COORDINATES = {
     3: (0, 1)
 }
 
-COLORS = {0: [0, 0, 117],  #this version does not use black as a key color because it's used for the board's outline
-          1: [230, 190, 255], 2: [170, 255, 195], 3: [255, 250, 200],
-          4: [255, 216, 177], 5: [250, 190, 190], 6: [240, 50, 230], 7: [145, 30, 180], 8: [67, 99, 216],
-          9: [66, 212, 244], 10: [60, 180, 75], 11: [191, 239, 69], 12: [255, 255, 25], 13: [245, 130, 49],
-          14: [230, 25, 75], 15: [128, 0, 0], 16: [154, 99, 36], 17: [128, 128, 0], 18: [70, 153, 144]}
+#this version does not use black as a key color because it's used for the board's outline
+COLORS = {0: [0, 0, 117],  1: [230, 190, 255], 2: [170, 255, 195], 3: [255, 250, 200], 4: [255, 216, 177],
+          5: [250, 190, 190], 6: [240, 50, 230], 7: [145, 30, 180], 8: [67, 99, 216], 9: [66, 212, 244],
+          10: [60, 180, 75], 11: [191, 239, 69], 12: [255, 255, 25], 13: [245, 130, 49], 14: [230, 25, 75],
+          15: [128, 0, 0], 16: [154, 99, 36], 17: [128, 128, 0], 18: [70, 153, 144], 19: [100, 70, 0]}
 
 num_colors = len(COLORS)
 AGENT_COLOR = [128, 128, 128]
@@ -50,14 +50,25 @@ class BoxworldEnv(gym.Env):
     """
     metadata = {'render.modes': ['human','return']}
 
-    def __init__(self, n=12, goal_length=5, num_distractor=2, distractor_length=2, max_steps=1000, world=None,
-                 verbose=False):
+    def __init__(self, n=12, goal_length=5, num_distractor=2, distractor_length=2, #solution configuration
+                 step_cost=0, reward_gem=10, reward_dead=0, reward_correct_key=1, reward_wrong_key=-1, #reward structure
+                 max_steps=1000, world=None, verbose=False):
         """
         Args:
+            STATE SPACE
             n: size of the board (n x n) excluding the outline (width 1 around board, so in total (n+2 x n+2)
-            goal_length: length of correct solution path, i.e. #keys that have to be picked up in the correct sequence
+            GOAL PATH
+            goal_length: length of correct solution path, i.e. #keys that have to be picked up in the correct
+            sequence, _including the gem_ at the end
             num_distractor: number of distractor branches
             distractor_length: length of each distractor path (currently all distractor paths are same length)
+            REWARDS
+            step_cost: base cost of performing a step, should be negative
+            reward_gem: reward for collecting the gem (game terminates afterwards)
+            reward_dead: reward for reading a dead end (game terminates afterwards), should be negative
+            reward_correct_key: reward for collecting (not just unlocking) a key on the solution path (correct key)
+            reward_wrong_key: reward for collecting (not just unlocking) a key not on the solution path (incorrect key)
+            ENVIRONMENT
             max_steps: maximum steps the environment allows before terminating
             world: an existing world data. If this is given, use this data.
                 If None, generate a new data by calling world_gen() function
@@ -70,11 +81,11 @@ class BoxworldEnv(gym.Env):
         self.num_pairs = goal_length - 1 + distractor_length * num_distractor
 
         # Penalties and Rewards
-        self.step_cost = -0.05 #todo: check if helpful? remove or not?
-        self.reward_gem = 20
-        self.reward_dead = -5
-        self.reward_correct_key = 1
-        self.reward_wrong_key = -1
+        self.step_cost = step_cost
+        self.reward_gem = reward_gem
+        self.reward_dead = reward_dead
+        self.reward_correct_key = reward_correct_key
+        self.reward_wrong_key = reward_wrong_key
 
         # Other Settings
         self.viewer = None

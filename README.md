@@ -40,14 +40,14 @@ The mapping of the action numbers to the actual actions looks as follows
  | Move Right   | 3     |
  
  ## Reward Structure
-Under the current settings, the environment provides the following rewards:
-* -0.05 for every step to facilitate learning
-* picking up (not unlocking) a correct key: 1
-* picking up (not unlocking) a wrong key: -1
-* reaching a dead end: -5
-* reching the goal (gem): 20
+Under default settings, the environment provides the rewards as given in the paper:
+* 0 for every step (can be set to e.g. -0.05 to facilitate learning)
+* 1 for picking up (not unlocking) a correct key
+* -1 for picking up (not unlocking) a wrong key
+* 0 for reaching a dead end / "dying"
+* 10 for reaching the goal (gem)
 
-The values were picked more or less arbitrarily.
+All of these values can be specified when instantiating or gym.make()-ing an environment.
 
  ## Installing the Environment
  This implementation makes use of gym registration.
