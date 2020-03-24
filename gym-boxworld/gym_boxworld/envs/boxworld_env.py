@@ -8,6 +8,7 @@ from gym.spaces import Box
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+from collections import OrderedDict
 
 ACTION_LOOKUP = {
     0: 'move up',
@@ -52,7 +53,7 @@ class BoxworldEnv(gym.Env):
 
     def __init__(self, n=12, goal_length=5, num_distractor=2, distractor_length=2, #solution configuration
                  step_cost=0, reward_gem=10, reward_dead=0, reward_correct_key=1, reward_wrong_key=-1, #reward structure
-                 max_steps=1000, world=None, verbose=False):
+                 num_colors=20, max_steps=3000, world=None, verbose=False):
         """
         Args:
             STATE SPACE
@@ -86,6 +87,14 @@ class BoxworldEnv(gym.Env):
         self.reward_dead = reward_dead
         self.reward_correct_key = reward_correct_key
         self.reward_wrong_key = reward_wrong_key
+
+        # Create custom color set for smaller state spaces
+        if num_colors < goal_length - 1 + distractor_length * num_distractor or num_colors > 20:
+            raise ValueError(f"Unacceptable number of possible colors: {num_colors}")
+        self.num_colors = num_colors
+        self.colors = {}
+        for i in range(self.num_colors):
+            self.colors[i] = COLORS[i]
 
         # Other Settings
         self.viewer = None
