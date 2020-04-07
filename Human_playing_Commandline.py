@@ -35,8 +35,8 @@ ts = time.time()
 
 #import from file directly without registering for faster debugging
 from gym_boxworld.envs import boxworld_env
-# env = boxworld_env.BoxworldEnv(n = 5, goal_length=2, num_distractor=1, distractor_length=1, num_colors=5)
-env = gym.make('gym_boxworld:boxworld-v0', n = 12, goal_length=3, num_distractor=2, distractor_length=2)
+env = boxworld_env.BoxworldEnv(n = 5, goal_length=2, num_distractor=0, distractor_length=1, num_colors=1)
+# env = gym.make('gym_boxworld:boxworld-v0', n = 12, goal_length=3, num_distractor=2, distractor_length=2)
 
 ACTION_LOOKUP = env.unwrapped.get_action_lookup()
 print("Created environment: {}".format(env_name))

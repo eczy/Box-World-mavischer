@@ -1,6 +1,7 @@
 #Adaptation of https://github.com/nathangrinsztajn/Box-World/blob/master/box_world_env.py that used the gym
 # ecosystem's distribution mechanism. Install it by calling pip install -e gym-boxworld inside gym-boxworld and
-# instantiate an environment by calling env = gym.make('gym-boxworld:boxworld-v0')
+# instantiate an environment by calling env = gym.make('gym-boxworld:boxworld-v0') or 'boxworldMini-v0' for a smaller
+# version.
 
 import gym
 from gym.spaces.discrete import Discrete
@@ -82,7 +83,7 @@ class BoxworldEnv(gym.Env):
         self.num_pairs = goal_length - 1 + distractor_length * num_distractor
 
         # Penalties and Rewards
-        self.step_cost = step_cost
+        self.step_cost = step_cost #assumed to be negative, like e.g. -0.1
         self.reward_gem = reward_gem
         self.reward_dead = reward_dead
         self.reward_correct_key = reward_correct_key
