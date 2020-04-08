@@ -33,7 +33,6 @@ COLORS = {0: [0, 0, 117],  1: [230, 190, 255], 2: [170, 255, 195], 3: [255, 250,
 
 for key in COLORS.keys():
     COLORS[key] = np.array(COLORS[key], dtype=np.uint8)
-num_colors = len(COLORS)
 AGENT_COLOR = np.array([128, 128, 128], dtype=np.uint8)
 GOAL_COLOR = np.array([255, 255, 255], dtype=np.uint8)
 BACKGD_COLOR = np.array([220, 220, 220], dtype=np.uint8)
@@ -184,8 +183,8 @@ class BoxworldEnv(gym.Env):
 
         world_dic = {}
         world = np.ones((self.n, self.n, 3), dtype=np.uint8) * BACKGD_COLOR
-        goal_colors = random.sample(range(num_colors), self.goal_length - 1)
-        distractor_possible_colors = [color for color in range(len(COLORS)) if color not in goal_colors]
+        goal_colors = random.sample(range(self.num_colors), self.goal_length - 1)
+        distractor_possible_colors = [color for color in range(len(self.colors)) if color not in goal_colors]
         distractor_colors = [random.sample(distractor_possible_colors, self.distractor_length) for k in
                              range(self.num_distractor)]
         distractor_roots = random.choices(range(self.goal_length - 1), k=self.num_distractor)
@@ -193,22 +192,22 @@ class BoxworldEnv(gym.Env):
         keys, locks, first_key, agent_pos = \
             self.sample_pair_locations(self.goal_length - 1 + self.distractor_length* self.num_distractor)
         if plot_solution:
-            self.plot_solution_graph(goal_colors, distractor_colors, distractor_roots, COLORS)
+            self.plot_solution_graph(goal_colors, distractor_colors, distractor_roots, self.colors)
 
         # first, create the goal path
         for i in range(1, self.goal_length):
             if i == self.goal_length - 1:
                 color = GOAL_COLOR  # final key is white
             else:
-                color = COLORS[goal_colors[i]]
+                color = self.colors[goal_colors[i]]
             if self.verbose:
                 print("place a key with color {} on position {}".format(color, keys[i - 1]))
-                print("place a lock with color {} on {})".format(COLORS[goal_colors[i - 1]], locks[i - 1]))
+                print("place a lock with color {} on {})".format(self.colors[goal_colors[i - 1]], locks[i - 1]))
             world[keys[i - 1][0], keys[i - 1][1]] = np.array(color)
-            world[locks[i - 1][0], locks[i - 1][1]] = np.array(COLORS[goal_colors[i - 1]])
+            world[locks[i - 1][0], locks[i - 1][1]] = np.array(self.colors[goal_colors[i - 1]])
 
         # keys[0] is an orphand key so skip it
-        world[first_key[0], first_key[1]] = COLORS[goal_colors[0]]
+        world[first_key[0], first_key[1]] = self.colors[goal_colors[0]]
         if self.verbose:
             print("place the first key with color {} on position {}".format(goal_colors[0], first_key))
         # a dead end is the end of a distractor branch, saved as color so it's consistent with world representation
@@ -224,10 +223,10 @@ class BoxworldEnv(gym.Env):
             # determine colors and place key,lock-pairs
             for k, (key, lock) in enumerate(list(zip(key_distractor, lock_distractor))):
                 if k == 0:  # first lock has color of root of distractor branch
-                    color_lock = COLORS[goal_colors[root]]
+                    color_lock = self.colors[goal_colors[root]]
                 else:
-                    color_lock = COLORS[distractor_color[k - 1]]  # old key color now becomes current lock color
-                color_key = COLORS[distractor_color[k]]
+                    color_lock = self.colors[distractor_color[k - 1]]  # old key color now becomes current lock color
+                color_key = self.colors[distractor_color[k]]
                 world[key[0], key[1], :] = color_key
                 world[lock[0], lock[1]] = color_lock
             dead_ends.append(color_key)  # after loop is run through the remaining color_key is the dead end
@@ -235,7 +234,7 @@ class BoxworldEnv(gym.Env):
         # place an agent
         world[agent_pos[0], agent_pos[1]] = AGENT_COLOR
         # convert goal colors to rgb so they have the same format as returned world
-        goal_colors_rgb = [COLORS[col] for col in goal_colors]
+        goal_colors_rgb = [self.colors[col] for col in goal_colors]
         # add outline to world by padding
         world = np.pad(world, [(1, 1), (1, 1), (0, 0)])
         agent_pos += [1, 1]  # account for padding
