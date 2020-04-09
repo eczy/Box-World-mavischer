@@ -182,54 +182,69 @@ class BoxworldEnv(gym.Env):
             random.seed(seed)
 
         world_dic = {}
+        # background
         world = np.ones((self.n, self.n, 3), dtype=np.uint8) * BACKGD_COLOR
+
+        # pick colors for intermediate goals and distractors
         goal_colors = random.sample(range(self.num_colors), self.goal_length - 1)
         distractor_possible_colors = [color for color in range(len(self.colors)) if color not in goal_colors]
         distractor_colors = [random.sample(distractor_possible_colors, self.distractor_length) for k in
                              range(self.num_distractor)]
-        distractor_roots = random.choices(range(self.goal_length - 1), k=self.num_distractor)
+
+        # sample where to branch off distractor branches from goal path
         # this line mainly prevents arbitrary distractor path length
+        print(self.goal_length)
+        print(self.num_distractor)
+
+        distractor_roots = random.choices(range(self.goal_length - 1), k=self.num_distractor)
+
+        # find legal positions for all pairs
         keys, locks, first_key, agent_pos = \
             self.sample_pair_locations(self.goal_length - 1 + self.distractor_length* self.num_distractor)
+
+        # rudimentary plot of solution DAG
         if plot_solution:
             self.plot_solution_graph(goal_colors, distractor_colors, distractor_roots, self.colors)
 
-        # first, create the goal path
-        for i in range(1, self.goal_length):
-            if i == self.goal_length - 1:
-                color = GOAL_COLOR  # final key is white
-            else:
-                color = self.colors[goal_colors[i]]
-            if self.verbose:
-                print("place a key with color {} on position {}".format(color, keys[i - 1]))
-                print("place a lock with color {} on {})".format(self.colors[goal_colors[i - 1]], locks[i - 1]))
-            world[keys[i - 1][0], keys[i - 1][1]] = np.array(color)
-            world[locks[i - 1][0], locks[i - 1][1]] = np.array(self.colors[goal_colors[i - 1]])
+        dead_ends = [] #this needs to be initialized outside of if clause
 
-        # keys[0] is an orphand key so skip it
-        world[first_key[0], first_key[1]] = self.colors[goal_colors[0]]
-        if self.verbose:
-            print("place the first key with color {} on position {}".format(goal_colors[0], first_key))
-        # a dead end is the end of a distractor branch, saved as color so it's consistent with world representation
-        dead_ends = []
-        # place distractors
-        # iterate over branches
-        for i, (distractor_color, root) in enumerate(zip(distractor_colors, distractor_roots)):
-            # choose x,y locations for keys and locks from keys and locks (previously determined so nothing collides)
-            key_distractor = keys[self.goal_length - 1 + i * self.distractor_length: \
-                                  self.goal_length - 1 + (i + 1) * self.distractor_length]
-            lock_distractor = locks[self.goal_length - 1 + i * self.distractor_length: \
-                                    self.goal_length - 1 + (i + 1) * self.distractor_length]
-            # determine colors and place key,lock-pairs
-            for k, (key, lock) in enumerate(list(zip(key_distractor, lock_distractor))):
-                if k == 0:  # first lock has color of root of distractor branch
-                    color_lock = self.colors[goal_colors[root]]
+        if self.goal_length == 1:  # special case where there is only an orphaned goal
+            world[first_key[0], first_key[1]] = GOAL_COLOR
+
+        else:         # create the goal path
+            for i in range(1, self.goal_length):
+                if i == self.goal_length - 1:
+                    color = GOAL_COLOR  # final key is white
                 else:
-                    color_lock = self.colors[distractor_color[k - 1]]  # old key color now becomes current lock color
-                color_key = self.colors[distractor_color[k]]
-                world[key[0], key[1], :] = color_key
-                world[lock[0], lock[1]] = color_lock
-            dead_ends.append(color_key)  # after loop is run through the remaining color_key is the dead end
+                    color = self.colors[goal_colors[i]]
+                if self.verbose:
+                    print("place a key with color {} on position {}".format(color, keys[i - 1]))
+                    print("place a lock with color {} on {})".format(self.colors[goal_colors[i - 1]], locks[i - 1]))
+                world[keys[i - 1][0], keys[i - 1][1]] = color
+                world[locks[i - 1][0], locks[i - 1][1]] = self.colors[goal_colors[i - 1]]
+
+            # keys[0] is orphaned key, so this happens outside the loop
+            world[first_key[0], first_key[1]] = self.colors[goal_colors[0]]
+            if self.verbose:
+                print("place the first key with color {} on position {}".format(goal_colors[0], first_key))
+            # a dead end is the end of a distractor branch, saved as color so it's consistent with world representation
+            # iterate over distractor branches to place all distractors
+            for i, (distractor_color, root) in enumerate(zip(distractor_colors, distractor_roots)):
+                # choose x,y locations for keys and locks from keys and locks (previously determined so nothing collides)
+                key_distractor = keys[self.goal_length - 1 + i * self.distractor_length: \
+                                      self.goal_length - 1 + (i + 1) * self.distractor_length]
+                lock_distractor = locks[self.goal_length - 1 + i * self.distractor_length: \
+                                        self.goal_length - 1 + (i + 1) * self.distractor_length]
+                # determine colors and place key,lock-pairs
+                for k, (key, lock) in enumerate(list(zip(key_distractor, lock_distractor))):
+                    if k == 0:  # first lock has color of root of distractor branch
+                        color_lock = self.colors[goal_colors[root]]
+                    else:
+                        color_lock = self.colors[distractor_color[k - 1]]  # old key color now becomes current lock color
+                    color_key = self.colors[distractor_color[k]]
+                    world[key[0], key[1], :] = color_key
+                    world[lock[0], lock[1]] = color_lock
+                dead_ends.append(color_key)  # after loop is run through the remaining color_key is the dead end
 
         # place an agent
         world[agent_pos[0], agent_pos[1]] = AGENT_COLOR
