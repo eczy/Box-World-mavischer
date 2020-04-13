@@ -193,9 +193,6 @@ class BoxworldEnv(gym.Env):
 
         # sample where to branch off distractor branches from goal path
         # this line mainly prevents arbitrary distractor path length
-        print(self.goal_length)
-        print(self.num_distractor)
-
         distractor_roots = random.choices(range(self.goal_length - 1), k=self.num_distractor)
 
         # find legal positions for all pairs
