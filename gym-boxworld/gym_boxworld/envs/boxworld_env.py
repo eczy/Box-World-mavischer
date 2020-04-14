@@ -177,7 +177,7 @@ class BoxworldEnv(gym.Env):
         """Wrapper to generate boxworld if it is not loaded from array.
 
         Originally written to be not a global function, so some handling of the variables is slightly suboptimal but
-        after all it gets only called once to creae the environment."""
+        after all it gets only called once to create the environment."""
         if seed is None:
             random.seed(seed)
 
@@ -371,3 +371,46 @@ class BoxworldEnv(gym.Env):
         """Updates the grid after the agent has moved by refreshing the correct colors."""
         world[previous_agent_loc[0], previous_agent_loc[1]] = BACKGD_COLOR
         world[new_agent_loc[0], new_agent_loc[1]] = AGENT_COLOR
+
+
+class RandomBoxworldEnv(BoxworldEnv):
+    """Boxworld environment but with the possibility to specify parameters as lists which will be uniformly sampled
+    from upon reset().
+
+    So far, the rewards are hard-coded in the environment, not parameterized in the init.
+    Args:
+        Just like BoxWorldEnv, with the difference that goal_length, num_distractor, distractor_length can be lists
+        that are randomly sampled from upon instantiating environment or  calling reset().
+    """
+    metadata = {'render.modes': ['human','return']}
+    def __init__(self, n=12, list_goal_lengths=[5], list_num_distractors=[2], list_distractor_lengths=[2],
+                 step_cost=0, reward_gem=10, reward_dead=0, reward_correct_key=1, reward_wrong_key=-1, #reward sucture
+                 num_colors=20, max_steps=3000, world=None, verbose=False):
+
+        self.list_goal_lengths = list_goal_lengths
+        self.list_num_distractors = list_num_distractors
+        self.list_distractor_lengths = list_distractor_lengths
+
+        #sample initial configuration
+        goal_length = random.choice(self.list_goal_lengths)
+        num_distractor = random.choice(self.list_num_distractors)
+        distractor_length = random.choice(self.list_distractor_lengths)
+        super(RandomBoxworldEnv, self).__init__(n=n, goal_length=goal_length, num_distractor=num_distractor,
+                                          distractor_length=distractor_length,
+                                          step_cost=step_cost, reward_gem=reward_gem, reward_dead=reward_dead,
+                                          reward_correct_key=reward_correct_key, reward_wrong_key=reward_wrong_key,
+                                          num_colors=num_colors, max_steps=max_steps, world=world, verbose=verbose)
+
+    def sample_config(self):
+        """Samples new values of  self.goal_length, self.num_distractors, self.distractor_length from respective
+        lists so that random world can be generated using world_gen() with minimal modifications."""
+        self.goal_length = random.choice(self.list_goal_lengths)
+        self.num_distractor = random.choice(self.list_num_distractors)
+        self.distractor_length = random.choice(self.list_distractor_lengths)
+
+
+    def world_gen(self, seed=None, plot_solution=True):
+        """Randomized version of world_gen that first samples new solution configuration values, modifies them
+        directly in classes attributes and creates a world from those with the parent classes world_gen()."""
+        self.sample_config()
+        return super(RandomBoxworldEnv, self).world_gen(seed=seed, plot_solution=plot_solution)
