@@ -6,6 +6,11 @@ register(
 )
 
 register(
+    id='boxworldRandom-v0',
+    entry_point='gym_boxworld.envs:RandomBoxworldEnv',
+)
+
+register(
     id='boxworldMini-v0', #
     entry_point='gym_boxworld.envs:BoxworldEnv',
     kwargs={
@@ -63,10 +68,23 @@ register(
     entry_point='gym_boxworld.envs:RandomBoxworldEnv',
     kwargs={
         "n": 8,  # size of board
-        "goal_length": [3,4,5],  # length of correct path (e.g. 4 means goal can be unlocked with 3rd key)
-        "num_distractor": [1,2],  # number of distractor branches, can be list
-        "distractor_length": [1,2],  # length/"depth" of each distractor branch, can be list
+        "list_goal_lengths": [3,4,5],  # length of correct path (e.g. 4 means goal can be unlocked with 3rd key)
+        "list_num_distractors": [1,2],  # number of distractor branches, can be list
+        "list_distractor_lengths": [1,2],  # length/"depth" of each distractor branch, can be list
         "num_colors": 16,
         "max_steps": 500
+    }
+)
+
+register(
+    id='boxworldRandomMini-v0', #
+    entry_point='gym_boxworld.envs:RandomBoxworldEnv',
+    kwargs={
+        "n": 5,  # size of board
+        "list_goal_lengths": [2,3],  # length of correct path (e.g. 4 means goal can be unlocked with 3rd key)
+        "list_num_distractors": [1],  # number of distractor branches, can be list
+        "list_distractor_lengths": [1],  # length/"depth" of each distractor branch, can be list
+        "num_colors": 8,
+        "max_steps": 250
     }
 )

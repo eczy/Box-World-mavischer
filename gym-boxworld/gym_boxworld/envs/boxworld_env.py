@@ -409,7 +409,7 @@ class RandomBoxworldEnv(BoxworldEnv):
         self.distractor_length = random.choice(self.list_distractor_lengths)
 
 
-    def world_gen(self, seed=None, plot_solution=True):
+    def world_gen(self, seed=None, plot_solution=False):
         """Randomized version of world_gen that first samples new solution configuration values, modifies them
         directly in classes attributes and creates a world from those with the parent classes world_gen()."""
         self.sample_config()
