@@ -68,11 +68,16 @@ register(
     entry_point='gym_boxworld.envs:RandomBoxworldEnv',
     kwargs={
         "n": 8,  # size of board
-        "list_goal_lengths": [3,4,5],  # length of correct path (e.g. 4 means goal can be unlocked with 3rd key)
+        "list_goal_lengths": [2,3],  # length of correct path (e.g. 4 means goal can be unlocked with 3rd key)
         "list_num_distractors": [1,2],  # number of distractor branches, can be list
-        "list_distractor_lengths": [1,2],  # length/"depth" of each distractor branch, can be list
+        "list_distractor_lengths": [1],  # length/"depth" of each distractor branch, can be list
+        "reward_gem": 10, #reward structure
+        "step_cost": 0, #assumed to be negative
+        "reward_dead": -5,
+        "reward_correct_key": 1,
+        "reward_wrong_key": -1,
         "num_colors": 16,
-        "max_steps": 500
+        "max_steps": 300 #maximum number of steps before environment terminates
     }
 )
 
